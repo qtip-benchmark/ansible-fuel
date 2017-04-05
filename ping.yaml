@@ -1,0 +1,16 @@
+---
+- hosts: fuel-master
+  tasks:
+    - name: collect fuel hosts
+      inventory:
+    - debug: var=compute
+    - name: add fuel host to ansible inventory
+      add_host:
+        name: "{{ _meta['hostvars'][item]['ip'] }}"
+        groups: fuel-hosts
+        ansible_user: root
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=No -o ProxyJump=fuel-master'
+      with_items: "{{ compute }}"
+- hosts: fuel-hosts
+  tasks:
+  - ping:
