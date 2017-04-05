@@ -1,16 +1,17 @@
 ---
 - hosts: fuel-master
   tasks:
-    - name: collect fuel hosts
-      inventory:
-    - debug: var=compute
-    - name: add fuel host to ansible inventory
-      add_host:
-        name: "{{ _meta['hostvars'][item]['ip'] }}"
-        groups: fuel-hosts
-        ansible_user: root
-        ansible_ssh_common_args: '-o StrictHostKeyChecking=No -o ProxyJump=fuel-master'
-      with_items: "{{ compute }}"
-- hosts: fuel-hosts
+  - name: collect facts of fuel hosts
+    fuel:
+  - debug: var=hostvars
+  - name: add compute node to ansible inventory
+    add_host:
+      name: "{{ hosts_meta[item]['ip'] }}"
+      groups: fuel-compute
+      ansible_user: root
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=No -o ProxyJump=fuel-master'
+    with_items: "{{ hosts.compute }}"
+- hosts: fuel-compute
   tasks:
-  - ping:
+  - name: check ssh connection
+    ping:
